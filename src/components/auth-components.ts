@@ -39,9 +39,61 @@ export const Error = styled.span`
   color: tomato;
 `
 
-export const Switcher = styled.span`
+export const SwitcherWrapper = styled.div`
   margin-top: 20px;
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+`
+export const Border = styled.div`
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  width:100%;
+  height: 1px;
+  background-color: rgb(47, 51, 54);
+`
+
+export const Switcher = styled.span`
   a {
     color: #1d9bf0
   }
+  display: flex;
+  flex: 0 1 auto;
+  justify-content: center;
+  align-items: center;
+`
+
+export const SocialWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+`
+
+
+export const SocialButton = styled.span`
+  background-color: white;
+  font-weight: 500;
+  width: 100%;
+  color: black;
+  padding: 10px;
+  border-radius: 50px;
+  border: 0; 
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+`
+export const SocialLogo = styled.img`
+  height: 25px;
 `

@@ -3,8 +3,9 @@ import { useState } from "react"
 import { auth } from "../firebase"
 import { Link, useNavigate } from "react-router-dom"
 import { FirebaseError } from "firebase/app"
-import { Error, Form, Input, Switcher, Title, Wrapper } from "../components/auth-components"
+import { Border, Error, Form, Input, SocialWrapper, Switcher, SwitcherWrapper, Title, Wrapper } from "../components/auth-components"
 import GithubButton from "../components/github-btn"
+import GoogleButton from "../components/google-btn"
 
 // const errors = {
 //   "auth/email-already-in-use": "That email already exists."
@@ -58,9 +59,18 @@ export default function CreateAccount(){
       <Input type="submit" value={isLoading ? "Loading..." : "Create Account"} />
     </Form>
     {error !== "" ? <Error>{error}</Error> : null}
+    <SwitcherWrapper>
+      <Border/>
+      <Switcher>
+        Already have an account? <Link to="/login">Log in &rarr;</Link>
+      </Switcher>
+      <Border/>
+    </SwitcherWrapper>
     <Switcher>
-      Already have an account? <Link to="/login">Log in &rarr;</Link>
     </Switcher>
-    <GithubButton />
+    <SocialWrapper>
+      <GithubButton />
+      <GoogleButton />
+    </SocialWrapper>
   </Wrapper>
 } 

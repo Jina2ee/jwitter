@@ -3,13 +3,9 @@ import { useState } from "react"
 import { auth } from "../firebase"
 import { Link, useNavigate } from "react-router-dom"
 import { FirebaseError } from "firebase/app"
-import { Error, Form, Input, Switcher, Title, Wrapper } from "../components/auth-components"
+import { Error, Form, Input, Switcher, Title, Wrapper, SocialWrapper, SwitcherWrapper, Border } from "../components/auth-components"
 import GithubButton from "../components/github-btn"
-
-// const errors = {
-//   "auth/email-already-in-use": "That email already exists."
-// }
-
+import GoogleButton from "../components/google-btn"
 
 export default function Login(){
   const navigate = useNavigate()
@@ -51,9 +47,16 @@ export default function Login(){
       <Input type="submit" value={isLoading ? "Loading..." : "Log in"} />
     </Form>
     {error !== "" ? <Error>{error}</Error> : null}
-    <Switcher>
-      Don't have an account? <Link to="/create-account">Create one &rarr;</Link>
-    </Switcher>
-    <GithubButton />
+    <SwitcherWrapper>
+      <Border/>
+      <Switcher>
+        Don't have an account? <Link to="/create-account"> Create one &rarr;</Link>
+      </Switcher>
+      <Border/>
+    </SwitcherWrapper>
+    <SocialWrapper>
+      <GithubButton />
+      <GoogleButton />
+    </SocialWrapper>
   </Wrapper>
 } 
