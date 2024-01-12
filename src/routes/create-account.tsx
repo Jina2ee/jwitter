@@ -88,6 +88,7 @@ export default function CreateAccount() {
       <FlexWrapper>
         <Form onSubmit={onSubmit}>
           <Input
+            disabled={isLoading}
             onChange={onChange}
             name='name'
             value={name}
@@ -96,6 +97,7 @@ export default function CreateAccount() {
             required
           />
           <Input
+            disabled={isLoading}
             onChange={onChange}
             name='email'
             value={email}
@@ -104,6 +106,7 @@ export default function CreateAccount() {
             required
           />
           <Input
+            disabled={isLoading}
             onChange={onChange}
             name='password'
             value={password}
