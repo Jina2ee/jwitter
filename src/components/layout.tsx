@@ -35,6 +35,7 @@ const Menu = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: black;
   @media (min-width: 768px) {
     display: flex;
     position: static;

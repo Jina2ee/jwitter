@@ -14,27 +14,30 @@ import ProtectedRoute from "./components/protected-route"
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute><Layout/></ProtectedRoute>,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "",
-        element: <Home />
+        element: <Home />,
       },
       {
         path: "profile",
-        element: <Profile/>
+        element: <Profile />,
       },
-    ]
+    ],
   },
   {
     path: "/login",
-    element: <Login />
+    element: <Login />,
   },
   {
     path: "/create-account",
-    element: <CreateAccount />
+    element: <CreateAccount />,
   },
-
 ])
 
 const GlobalStyles = createGlobalStyle`
@@ -50,14 +53,14 @@ const GlobalStyles = createGlobalStyle`
 `
 
 const Wrapper = styled.div`
-  height: 100vh;
+  /* height: 100vh; */
   display: flex;
   justify-content: center;
 `
 
 function App() {
-  const [ isLoading, setLoading ] = useState(true)
-  const init = async() => {
+  const [isLoading, setLoading] = useState(true)
+  const init = async () => {
     // wait for firebase
     await auth.authStateReady()
     setLoading(false)
