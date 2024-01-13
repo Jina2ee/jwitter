@@ -132,8 +132,8 @@ export default function CreateAccount() {
         </SwitcherWrapper>
         <Switcher></Switcher>
         <SocialWrapper>
-          <GithubButton />
-          <GoogleButton />
+          <GithubButton setError={setError} />
+          <GoogleButton setError={setError} />
         </SocialWrapper>
       </FlexWrapper>
     </Wrapper>

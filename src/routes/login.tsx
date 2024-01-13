@@ -107,8 +107,8 @@ export default function Login() {
           <Border />
         </SwitcherWrapper>
         <SocialWrapper>
-          <GithubButton />
-          <GoogleButton />
+          <GithubButton setError={setError} />
+          <GoogleButton setError={setError} />
         </SocialWrapper>
       </FlexWrapper>
     </Wrapper>

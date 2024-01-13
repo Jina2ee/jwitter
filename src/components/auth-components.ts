@@ -79,7 +79,7 @@ export const Input = styled.input`
   }
 `
 
-export const Error = styled.span`
+export const Error = styled.div`
   height: 2rem;
   font-weight: 600;
   color: tomato;
