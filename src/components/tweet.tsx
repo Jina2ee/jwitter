@@ -1,8 +1,8 @@
-import { styled } from "styled-components";
-import { ITweet } from "./timeline";
-import { auth, db, storage } from "../firebase";
-import { deleteDoc, doc } from "firebase/firestore";
-import { deleteObject, ref } from "firebase/storage";
+import { styled } from "styled-components"
+import { ITweet } from "./timeline"
+import { auth, db, storage } from "../firebase"
+import { deleteDoc, doc } from "firebase/firestore"
+import { deleteObject, ref } from "firebase/storage"
 
 const Wrapper = styled.div`
   display: grid;
@@ -13,6 +13,9 @@ const Wrapper = styled.div`
   /* background-color: ; */
 `
 const Column = styled.div``
+const PhotoColumn = styled.div`
+  margin: 0 auto;
+`
 const Photo = styled.img`
   width: 100px;
   height: 100px;
@@ -39,34 +42,32 @@ const DeleteButton = styled.button`
   cursor: pointer;
 `
 
-
-export default function Tweet({userName, photo, tweet, userId, id}:ITweet){
-  const user = auth.currentUser;
-  const onDelete = async() => {
+export default function Tweet({ userName, photo, tweet, userId, id }: ITweet) {
+  const user = auth.currentUser
+  const onDelete = async () => {
     const ok = confirm("Are you sure you want to delete this tweet?")
-    if(!ok || user?.uid !== userId) return 
+    if (!ok || user?.uid !== userId) return
     try {
       await deleteDoc(doc(db, "tweets", id))
-      if(photo){
+      if (photo) {
         const photoRef = ref(storage, `tweets/${user.uid}/${id}`)
         await deleteObject(photoRef)
       }
     } catch (error) {
       console.error(error)
-    } 
+    }
     // finally {}
   }
-  return <Wrapper>
-    <Column>
-      <Username>{userName}</Username>
-      <Payload>{tweet}</Payload>
-      {
-        user?.uid === userId ? <DeleteButton onClick={onDelete}>Delete</DeleteButton> : null
-      }
-    </Column>
-    <Column>
-     {photo ? 
-        <Photo src={photo} /> : null}
+  return (
+    <Wrapper>
+      <Column>
+        <Username>{userName}</Username>
+        <Payload>{tweet}</Payload>
+        {user?.uid === userId ? (
+          <DeleteButton onClick={onDelete}>Delete</DeleteButton>
+        ) : null}
       </Column>
-  </Wrapper>
+      <PhotoColumn>{photo ? <Photo src={photo} /> : null}</PhotoColumn>
+    </Wrapper>
+  )
 }

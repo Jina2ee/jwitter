@@ -26,7 +26,11 @@ const Header = styled.div`
   color: white;
   text-align: center;
   justify-content: center;
+  @media (min-width: 768px) {
+    display: none;
+  }
 `
+
 const Menu = styled.div`
   position: fixed;
   left: 0;
@@ -46,8 +50,23 @@ const Menu = styled.div`
   }
 `
 
+const Logo = styled.div`
+  font-weight: bold;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  border: none;
+`
+
 const NavLink = styled(Link)`
   padding: 0.6rem 1rem;
+  text-decoration: none;
+  &.main-logo {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 `
 const NavBtn = styled.button`
   padding: 0.6rem 1rem;
@@ -89,6 +108,9 @@ export default function Layout() {
     <Wrapper>
       <Header>Jwitter</Header>
       <Menu>
+        <NavLink to='/' className='main-logo'>
+          <Logo>Jw</Logo>
+        </NavLink>
         <NavLink to='/'>
           <MenuItem>
             <svg
