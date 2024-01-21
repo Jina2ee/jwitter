@@ -43,6 +43,7 @@ const AvatarInput = styled.input`
 const Name = styled.span`
   font-size: 22px;
 `
+const Input = styled.input``
 
 const Tweets = styled.div`
   width: 100%;
@@ -53,20 +54,68 @@ const Tweets = styled.div`
 
 export default function Profile() {
   const user = auth.currentUser
+  const [isEdited, setEdited] = useState(false)
+  const [name, setName] = useState<string>("")
   const [avatar, setAvatar] = useState(user?.photoURL)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [tweets, setTweets] = useState<ITweet[]>([])
+
+  useEffect(() => {
+    setAvatarUrl()
+    setName(user?.displayName ?? "Anonymous")
+  }, [])
+
+  const setAvatarUrl = async () => {
+    const imgRef = ref(storage, `avatars/${user?.uid}`)
+    const url = await getDownloadURL(imgRef)
+    setAvatar(url)
+  }
+
+  const onNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value)
+  }
+
+  const onEdited = () => {
+    setEdited(true)
+  }
+
+  const onCancled = () => {
+    setEdited(false)
+    setName(user?.displayName ?? "Anonymous")
+    setAvatarUrl()
+  }
+
+  const onChanged = async () => {
+    if (!user) return
+    try {
+      if (avatarFile) {
+        const locationRef = ref(storage, `avatars/${user?.uid}`)
+        const result = await uploadBytes(locationRef, avatarFile)
+        const avatarURL = await getDownloadURL(result.ref)
+        await updateProfile(user, {
+          displayName: name,
+          photoURL: avatarURL,
+        })
+      } else {
+        await updateProfile(user, {
+          displayName: name,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setEdited(false)
+    }
+  }
+
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target
     if (!user) return
     if (files && files.length === 1) {
       const file = files[0]
-      const locationRef = ref(storage, `avatars/${user?.uid}`)
-      const result = await uploadBytes(locationRef, file)
-      const avatarURL = await getDownloadURL(result.ref)
-      setAvatar(avatarURL)
-      await updateProfile(user, {
-        photoURL: avatarURL,
-      })
+      setAvatarFile(file)
+      const url = URL.createObjectURL(file)
+      setAvatar(url)
     }
   }
   const fetchTweets = async () => {
@@ -98,7 +147,6 @@ export default function Profile() {
     <Wrapper>
       <AvatarUpload htmlFor='avatar'>
         {avatar ? (
-          // Boolean(avatar) ?
           <AvatarImg src={avatar} />
         ) : (
           <svg
@@ -116,8 +164,22 @@ export default function Profile() {
         id='avatar'
         type='file'
         accept='image/*'
+        disabled={!isEdited}
       />
-      <Name>{user?.displayName ?? "Anonymous"}</Name>
+      {isEdited ? (
+        <Input onChange={onNameChange} value={name} type='text' />
+      ) : (
+        <Name>{name}</Name>
+      )}
+      {isEdited ? (
+        <>
+          <button onClick={onCancled}>cancle</button>
+          <button onClick={onChanged}>save</button>
+        </>
+      ) : (
+        <button onClick={onEdited}>edit</button>
+      )}
+
       <Tweets>
         {tweets.map((tweet) => (
           <Tweet key={tweet.id} {...tweet} />
