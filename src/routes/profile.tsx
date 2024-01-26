@@ -2,14 +2,17 @@ import { styled } from "styled-components"
 import { auth, db, storage } from "../firebase"
 import { useEffect, useState } from "react"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
-import { updateProfile } from "firebase/auth"
 import {
   collection,
   getDocs,
   limit,
   orderBy,
   query,
+  updateDoc,
   where,
+  doc,
+  getDoc,
+  DocumentReference,
 } from "firebase/firestore"
 import { ITweet } from "../components/timeline"
 import Tweet from "../components/tweet"
@@ -52,6 +55,8 @@ const Tweets = styled.div`
   gap: 10px;
 `
 
+// auth 에 있는 이미지 값이 아니라 userDB 에 있는 값을 업데이트해야한다...
+
 export default function Profile() {
   const user = auth.currentUser
   const [isEdited, setEdited] = useState(false)
@@ -62,13 +67,34 @@ export default function Profile() {
 
   useEffect(() => {
     setAvatarUrl()
-    setName(user?.displayName ?? "Anonymous")
+    getUserInformation()
+    fetchTweets()
   }, [])
 
   const setAvatarUrl = async () => {
     const imgRef = ref(storage, `avatars/${user?.uid}`)
     const url = await getDownloadURL(imgRef)
-    setAvatar(url)
+    if (!url) {
+      setAvatar(user?.photoURL)
+    } else {
+      setAvatar(url)
+    }
+  }
+
+  const getUserInformation = async () => {
+    const userQuery = query(
+      collection(db, "users"),
+      where("uid", "==", user?.uid)
+    )
+
+    const snapshot = await getDocs(userQuery)
+    snapshot.docs.find((doc) => {
+      const { uid, name } = doc.data()
+      if (uid === user?.uid) {
+        setName(name)
+        console.log("profile doc", doc.data())
+      }
+    })
   }
 
   const onNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +108,7 @@ export default function Profile() {
   const onCancled = () => {
     setEdited(false)
     setName(user?.displayName ?? "Anonymous")
+    getUserInformation()
     setAvatarUrl()
   }
 
@@ -90,21 +117,17 @@ export default function Profile() {
     try {
       if (avatarFile) {
         const locationRef = ref(storage, `avatars/${user?.uid}`)
-        const result = await uploadBytes(locationRef, avatarFile)
-        const avatarURL = await getDownloadURL(result.ref)
-        await updateProfile(user, {
-          displayName: name,
-          photoURL: avatarURL,
-        })
-      } else {
-        await updateProfile(user, {
-          displayName: name,
-        })
+        await uploadBytes(locationRef, avatarFile)
       }
+      const documentsRef = doc(db, "users", user.uid)
+      await updateDoc(documentsRef, {
+        name: name,
+      })
     } catch (error) {
       console.error(error)
     } finally {
       setEdited(false)
+      await fetchTweets()
     }
   }
 
@@ -118,6 +141,11 @@ export default function Profile() {
       setAvatar(url)
     }
   }
+  const getUserByRef = async (userRef: DocumentReference) => {
+    const userSnapshot = await getDoc(userRef)
+    return userSnapshot.data()
+  }
+
   const fetchTweets = async () => {
     const tweetQuery = query(
       collection(db, "tweets"),
@@ -125,24 +153,24 @@ export default function Profile() {
       orderBy("createdAt", "desc"),
       limit(25)
     )
+
     const snapshot = await getDocs(tweetQuery)
-    const tweets = snapshot.docs.map((doc) => {
-      const { photo, tweet, userId, userName, createdAt } = doc.data()
-      return {
-        photo,
-        tweet,
-        userId,
-        userName,
-        createdAt,
-        id: doc.id,
-      }
-    })
+    const tweets = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const { photo, tweet, userId, userRef, createdAt } = doc.data()
+        const userInformation = await getUserByRef(userRef)
+        return {
+          photo,
+          tweet,
+          createdAt,
+          userId,
+          userName: userInformation?.name,
+          id: doc.id,
+        }
+      })
+    )
     setTweets(tweets)
   }
-
-  useEffect(() => {
-    fetchTweets()
-  }, [])
   return (
     <Wrapper>
       <AvatarUpload htmlFor='avatar'>
