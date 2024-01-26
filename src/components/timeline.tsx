@@ -1,4 +1,12 @@
-import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore"
+import {
+  DocumentReference,
+  collection,
+  getDoc,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore"
 import { useEffect, useState } from "react"
 import { styled } from "styled-components"
 import { db } from "../firebase"
@@ -6,13 +14,12 @@ import Tweet from "./tweet"
 import { Unsubscribe } from "firebase/auth"
 
 export interface ITweet {
-  id: string 
-  photo?: string 
-  tweet: string 
-  userId: string 
-  userName: string 
+  id: string
+  photo?: string
+  tweet: string
+  userId: string
+  userName: string
   createdAt: number
-
 }
 
 const Wrapper = styled.div`
@@ -20,35 +27,39 @@ const Wrapper = styled.div`
   gap: 10px;
   flex-direction: column;
   overflow-y: scroll;
-
 `
 
-export default function Timeline(){
-  const [ tweets, setTweets ] = useState<ITweet[]>([])
-  useEffect(() => { 
-    let unsubscribe:Unsubscribe | null = null
-    const fetchTweets = async() => {
+export default function Timeline() {
+  const [tweets, setTweets] = useState<ITweet[]>([])
+
+  const getUserByRef = async (userRef: DocumentReference) => {
+    const userSnapshot = await getDoc(userRef)
+    return userSnapshot.data()
+  }
+  useEffect(() => {
+    let unsubscribe: Unsubscribe | null = null
+    const fetchTweets = async () => {
       const tweetsQuery = query(
         collection(db, "tweets"),
         orderBy("createdAt", "desc"),
         limit(25)
       )
-      // const snapshot = await getDocs(tweetsQuery)
-      // const tweets = snapshot.docs.map((doc) => {
-      //   const {photo, tweet, userId, userName, createdAt } = doc.data()
-      //   return {
-      //     photo, tweet, userId, userName, createdAt,
-      //     id: doc.id
-      //   }
-      // })
-      unsubscribe = await onSnapshot(tweetsQuery, (snapshot) => {
-        const tweets = snapshot.docs.map((doc) => {
-          const {photo, tweet, userId, userName, createdAt } = doc.data()
-          return {
-            photo, tweet, userId, userName, createdAt,
-            id: doc.id
-          }
-        })
+
+      unsubscribe = await onSnapshot(tweetsQuery, async (snapshot) => {
+        const tweets: ITweet[] = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const { photo, tweet, createdAt, userRef, userId } = doc.data()
+            const userInformation = await getUserByRef(userRef)
+            return {
+              photo,
+              tweet,
+              createdAt,
+              userId,
+              userName: userInformation?.name,
+              id: doc.id,
+            }
+          })
+        )
         setTweets(tweets)
       })
     }
@@ -57,8 +68,11 @@ export default function Timeline(){
       unsubscribe && unsubscribe()
     }
   }, [])
-  return <Wrapper>
-  {tweets.map((tweet) => <Tweet key={tweet.id} {...tweet} />)}
-
-  </Wrapper>
+  return (
+    <Wrapper>
+      {tweets.map((tweet) => (
+        <Tweet key={tweet.id} {...tweet} />
+      ))}
+    </Wrapper>
+  )
 }

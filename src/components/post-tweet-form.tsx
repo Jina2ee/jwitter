@@ -1,4 +1,4 @@
-import { addDoc, collection, updateDoc } from "firebase/firestore"
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore"
 import { auth, db, storage } from "../firebase"
 import { useState } from "react"
 import { styled } from "styled-components"
@@ -89,7 +89,6 @@ export default function PostTweetForm() {
     setTweet(e.target.value)
   }
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("files 작동하는가?")
     const { files } = e.target
     if (files && files.length === 1) {
       setFile(files[0])
@@ -110,17 +109,17 @@ export default function PostTweetForm() {
 
     try {
       setLoading(true)
-      const doc = await addDoc(collection(db, "tweets"), {
+      const document = await addDoc(collection(db, "tweets"), {
         tweet,
         createdAt: Date.now(),
-        userName: user.displayName || "Anonymous",
         userId: user.uid,
+        userRef: doc(db, "users", user.uid),
       })
       if (file) {
-        const locationRef = ref(storage, `tweets/${user.uid}/${doc.id}`)
+        const locationRef = ref(storage, `tweets/${user.uid}/${document.id}`)
         const result = await uploadBytes(locationRef, file)
         const url = await getDownloadURL(result.ref)
-        await updateDoc(doc, {
+        await updateDoc(document, {
           photo: url,
         })
       }
