@@ -1,6 +1,6 @@
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { createUserWithEmailAndPassword } from "firebase/auth"
 import { useEffect, useState } from "react"
-import { auth } from "../firebase"
+import { auth, db } from "../firebase"
 import { Link, useNavigate } from "react-router-dom"
 import { FirebaseError } from "firebase/app"
 import {
@@ -19,6 +19,7 @@ import GithubButton from "../components/github-btn"
 import GoogleButton from "../components/google-btn"
 import { emailRegex, passwordRegex } from "../utils/regex"
 import { setErrorMsg } from "../utils/error-auth-firebase"
+import { setDoc, doc } from "firebase/firestore"
 
 export default function CreateAccount() {
   const navigate = useNavigate()
@@ -67,8 +68,10 @@ export default function CreateAccount() {
         email,
         password
       )
-      await updateProfile(credentials.user, {
-        displayName: name,
+      await setDoc(doc(db, "users", credentials.user.uid), {
+        createdAt: Date.now(),
+        uid: credentials.user.uid,
+        name: name,
       })
       navigate("/")
     } catch (e) {

@@ -1,9 +1,10 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
-import { auth } from "../firebase"
+import { auth, db } from "../firebase"
 import { useNavigate } from "react-router-dom"
 import { SocialButton as Button, SocialLogo as Logo } from "./auth-components"
 import { FirebaseError } from "firebase/app"
 import { setErrorMsg } from "../utils/error-auth-firebase"
+import { doc, getDoc, setDoc } from "firebase/firestore"
 
 type Props = {
   setError: React.Dispatch<React.SetStateAction<string>>
@@ -14,7 +15,17 @@ export default function GoogleButton({ setError }: Props) {
   const onClick = async () => {
     try {
       const provider = new GoogleAuthProvider()
-      await signInWithPopup(auth, provider)
+      const credentials = await signInWithPopup(auth, provider)
+
+      const documentRef = doc(db, "users", credentials.user.uid)
+      const userDoc = await getDoc(documentRef)
+      if (!userDoc.data()) {
+        await setDoc(doc(db, "users", credentials.user.uid), {
+          createdAt: Date.now(),
+          uid: credentials.user.uid,
+          name: credentials.user.displayName,
+        })
+      }
       navigate("/")
     } catch (error) {
       if (error instanceof FirebaseError) {
