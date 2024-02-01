@@ -1,6 +1,7 @@
 import { Link, Outlet, useNavigate } from "react-router-dom"
 import { styled } from "styled-components"
 import { auth } from "../firebase"
+import { useEffect, useState } from "react"
 
 const Wrapper = styled.div`
   display: grid;
@@ -16,6 +17,7 @@ const Wrapper = styled.div`
 `
 const Header = styled.div`
   position: fixed;
+  z-index: 1;
   left: 0;
   right: 0;
   top: 0;
@@ -26,8 +28,14 @@ const Header = styled.div`
   color: white;
   text-align: center;
   justify-content: center;
+  animation-duration: 0.5s;
+  transition: all 200ms linear;
   @media (min-width: 768px) {
     display: none;
+  }
+  &.is-scrolled {
+    background-color: white;
+    color: black;
   }
 `
 
@@ -98,6 +106,18 @@ const MenuItem = styled.div`
 
 export default function Layout() {
   const navigate = useNavigate()
+  const [position, setPosition] = useState(0)
+
+  function onScroll() {
+    setPosition(window.scrollY)
+  }
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll)
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+    }
+  }, [])
+
   const onLogout = async () => {
     const ok = confirm("Are you sure you want to log out?")
     if (ok) {
@@ -107,7 +127,8 @@ export default function Layout() {
   }
   return (
     <Wrapper>
-      <Header>Jwitter</Header>
+      <Header className={position > 50 ? "is-scrolled" : ""}>Jwitter</Header>
+
       <Menu>
         <NavLink to='/' className='main-logo'>
           <Logo>Jw</Logo>
