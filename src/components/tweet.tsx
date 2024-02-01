@@ -20,9 +20,11 @@ const ColumnWrapper = styled.div`
   justify-content: space-between;
   margin-bottom: 10px;
 `
-const Column = styled.div`
+const TextColumn = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
 `
 const PhotoColumn = styled.div``
 const Photo = styled.img`
@@ -98,10 +100,10 @@ export default function Tweet({
   return (
     <Wrapper>
       <ColumnWrapper>
-        <Column>
+        <TextColumn>
           <Username>{userName}</Username>
           <Payload>{tweet}</Payload>
-        </Column>
+        </TextColumn>
         {photo && (
           <PhotoColumn>
             <Photo src={photo} />
