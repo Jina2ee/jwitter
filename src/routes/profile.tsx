@@ -55,6 +55,31 @@ const Tweets = styled.div`
   gap: 10px;
 `
 
+const ButtonWrap = styled.div`
+  display: inline-flex;
+  gap: 10px;
+`
+
+const Button = styled.button`
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  background-color: transparent;
+  &.cancle,
+  &.edit {
+    border: 1px solid white;
+  }
+  &.save {
+    background-color: #1d9bf0;
+  }
+`
+
 // auth 에 있는 이미지 값이 아니라 userDB 에 있는 값을 업데이트해야한다...
 
 export default function Profile() {
@@ -200,12 +225,18 @@ export default function Profile() {
         <Name>{name}</Name>
       )}
       {isEdited ? (
-        <>
-          <button onClick={onCancled}>cancle</button>
-          <button onClick={onChanged}>save</button>
-        </>
+        <ButtonWrap>
+          <Button className='cancle' onClick={onCancled}>
+            cancle
+          </Button>
+          <Button className='save' onClick={onChanged}>
+            save
+          </Button>
+        </ButtonWrap>
       ) : (
-        <button onClick={onEdited}>edit</button>
+        <Button className='edit' onClick={onEdited}>
+          edit
+        </Button>
       )}
 
       <Tweets>
