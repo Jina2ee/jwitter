@@ -19,7 +19,7 @@ export interface ITweet {
   tweet: string
   userId: string
   userName: string
-  createdAt: number
+  createdAt: Date
 }
 
 const Wrapper = styled.div`

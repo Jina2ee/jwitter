@@ -5,44 +5,81 @@ import { deleteDoc, doc } from "firebase/firestore"
 import { deleteObject, ref } from "firebase/storage"
 
 const Wrapper = styled.div`
+  position: relative;
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  /* grid-template-columns: 3fr 1fr; */
+  /* grid-template-rows: max-content; */
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 15px;
-  /* background-color: ; */
 `
-const Column = styled.div``
-const PhotoColumn = styled.div`
-  margin: 0 auto;
+const ColumnWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
 `
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+const PhotoColumn = styled.div``
 const Photo = styled.img`
   width: 100px;
   height: 100px;
   border-radius: 15px;
 `
 const Username = styled.span`
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 400;
+  font-size: 13px;
 `
 const Payload = styled.p`
   margin: 10px 0;
   font-size: 18px;
 `
 
+const BottomWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`
+
 const DeleteButton = styled.button`
-  background-color: tomato;
-  color: white;
-  font-weight: 600;
+  display: flex;
+  align-items: end;
+  flex-direction: row;
+  background-color: transparent;
+  color: tomato;
   border: 0;
-  font-size: 12px;
-  padding: 5px 10px;
-  text-transform: uppercase;
   border-radius: 5px;
+  border: 1px solid tomato;
+  font-weight: 600;
+  font-size: 10px;
+  padding: 5px;
+  text-transform: uppercase;
   cursor: pointer;
 `
 
-export default function Tweet({ userName, photo, tweet, userId, id }: ITweet) {
+const CreatedAt = styled.span`
+  display: flex;
+  flex: 1 0 auto;
+  align-items: end;
+  flex-direction: row-reverse;
+  font-style: italic;
+  color: gray;
+  font-size: 10px;
+`
+
+export default function Tweet({
+  userName,
+  photo,
+  tweet,
+  userId,
+  id,
+  createdAt,
+}: ITweet) {
   const user = auth.currentUser
   const onDelete = async () => {
     const ok = confirm("Are you sure you want to delete this tweet?")
@@ -60,14 +97,23 @@ export default function Tweet({ userName, photo, tweet, userId, id }: ITweet) {
   }
   return (
     <Wrapper>
-      <Column>
-        <Username>{userName}</Username>
-        <Payload>{tweet}</Payload>
+      <ColumnWrapper>
+        <Column>
+          <Username>{userName}</Username>
+          <Payload>{tweet}</Payload>
+        </Column>
+        {photo && (
+          <PhotoColumn>
+            <Photo src={photo} />
+          </PhotoColumn>
+        )}
+      </ColumnWrapper>
+      <BottomWrapper>
         {user?.uid === userId ? (
           <DeleteButton onClick={onDelete}>Delete</DeleteButton>
         ) : null}
-      </Column>
-      <PhotoColumn>{photo ? <Photo src={photo} /> : null}</PhotoColumn>
+        <CreatedAt>{new Date(createdAt).toLocaleDateString("en-GB")}</CreatedAt>
+      </BottomWrapper>
     </Wrapper>
   )
 }

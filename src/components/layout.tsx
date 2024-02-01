@@ -36,10 +36,11 @@ const Menu = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: black;
+  background-color: transparent;
   @media (min-width: 768px) {
     display: flex;
     position: static;
